@@ -6,6 +6,7 @@ public class UserGetDTO {
 
     private Long id;
     private String name;
+    private String password;
     private String username;
     private UserStatus status;
 
@@ -21,8 +22,8 @@ public class UserGetDTO {
         return name;
     }
 
-    public void setPassword(String password) {
-        this.name = password;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getUsername() {

@@ -35,10 +35,15 @@ public class User implements Serializable {
     private UserStatus status;
 
     @Column(nullable = true) // kann ich mich registrieren ohne dieses feld
-    private String password1; //TODO nicht vergessen false setzten
+    private String password; //TODO nicht vergessen false setzten
 
+    public String getPassword() {
+        return password;
+    }
 
-
+    public void setPassword(String password) {
+        this.password = password;
+    }
 
     public Long getId() {
         return id;
