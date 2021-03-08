@@ -6,6 +6,7 @@ public class UserGetDTO {
 
     private Long id;
     private String name;
+    private String password;
     private String username;
     private UserStatus status;
 

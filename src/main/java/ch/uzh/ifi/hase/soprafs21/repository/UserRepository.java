@@ -7,6 +7,9 @@ import org.springframework.stereotype.Repository;
 @Repository("userRepository")
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByName(String name);
+    //TODO Here I can change ByName to ByPassword and it should work
 
     User findByUsername(String username);
+
+
 }
