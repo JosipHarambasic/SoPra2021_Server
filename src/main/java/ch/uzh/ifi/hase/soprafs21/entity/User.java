@@ -4,6 +4,8 @@ import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Calendar;
+import java.util.Date;
 
 /**
  * Internal User Representation
@@ -34,10 +36,31 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column(nullable = true) // kann ich mich registrieren ohne dieses feld
-    private String password1; //TODO nicht vergessen false setzten
+    @Column(nullable = true)
+    private String birthday;
+
+    @Column(nullable = false)
+    private String creationDate;
 
 
+    public String getBirthday() {
+        return birthday;
+    }
+
+    public void setBirthday(String birthday) {
+        this.birthday = birthday;
+    }
+
+    public String getCreationDate() {
+        return creationDate;
+    }
+
+    public void setCreationDate(String creationDate) {
+        this.creationDate = creationDate;
+    }
+
+    /**@Column(nullable = true) // kann ich mich registrieren ohne dieses feld
+    private String password; //TODO nicht vergessen false setzten */
 
 
     public Long getId() {

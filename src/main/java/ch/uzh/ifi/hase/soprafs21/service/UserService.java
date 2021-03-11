@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.service;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
+import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import javax.management.openmbean.InvalidKeyException;
+import java.nio.file.attribute.UserPrincipalNotFoundException;
 import java.util.List;
 import java.util.UUID;
 
@@ -36,6 +39,24 @@ public class UserService {
     public List<User> getUsers() {
         return this.userRepository.findAll();
     }
+
+
+    public User getUser(Long id) throws NotFoundException {
+        //find user by his ID
+        List<User> allUsers = this.userRepository.findAll();
+        User userToReturn = null;
+        for (User user: allUsers){
+            if (user.getId().equals(id)){
+                userToReturn = user;
+            }
+        }
+        if(userToReturn == null){
+            throw new NotFoundException("User not found");
+        }
+
+        return userToReturn;
+    }
+
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
@@ -74,4 +95,36 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
         }
     }
+    public User handleRequestLogin(User userToBeChecked){
+        userToBeChecked.setToken(UUID.randomUUID().toString());
+        List<User> allUsers = this.userRepository.findAll();
+
+        // set all the users to offline
+        for (User user: allUsers){
+            user.setStatus(UserStatus.OFFLINE);
+        }
+
+        User userByUsername = userRepository.findByUsername(userToBeChecked.getUsername());
+
+        //check if user exists or not
+        if(userByUsername == null){
+            throw new InvalidKeyException("login failed because user doesn't exist");
+        }
+
+        String userPassword = userByUsername.getName();
+        String userUsername = userByUsername.getUsername();
+
+        if (!userToBeChecked.getUsername().equals(userUsername) || !userToBeChecked.getName().equals(userPassword)){
+            throw new InvalidKeyException("login failed because of false credentials");
+        }
+
+        //set the logged in user to online
+        userByUsername.setStatus(UserStatus.ONLINE);
+
+        //safe the changes
+        User returnedUser = userRepository.save(userByUsername);
+        userRepository.flush();
+        return returnedUser;
+    }
+
 }

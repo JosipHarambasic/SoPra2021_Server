@@ -5,6 +5,7 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
+import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -52,5 +53,29 @@ public class UserController {
 
         // convert internal representation of user back to API
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(createdUser);
+    }
+
+    @PutMapping("/login")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserGetDTO requestLogin(@RequestBody UserPostDTO userPostDTO){
+        // here I want to convert the API to the internal representation
+        User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
+
+        // asking userService if userInput exists
+        User userLogin = userService.handleRequestLogin(userInput);
+
+        // convert internal representation of the user back to the API
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userLogin);
+    }
+
+    @GetMapping("/users/{userId}")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public UserGetDTO getCurrentUser(@PathVariable Long userId) throws NotFoundException {
+        // fetch all users in the internal representation
+        User user = userService.getUser(userId);
+        UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
+        return userGetDTO;
     }
 }
