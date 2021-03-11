@@ -39,7 +39,7 @@ public class User implements Serializable {
     @Column(nullable = true)
     private String birthday;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String creationDate;
 
 
