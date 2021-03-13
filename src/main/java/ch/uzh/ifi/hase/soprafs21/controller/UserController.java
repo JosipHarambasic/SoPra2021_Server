@@ -78,4 +78,12 @@ public class UserController {
         UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
         return userGetDTO;
     }
+    @PutMapping("/users/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void EditCurrentUser(@PathVariable Long userId, @RequestBody UserPostDTO userEditDTO) throws NotFoundException {
+
+        userService.userUpdate(userId, userEditDTO);
+    }
+
 }

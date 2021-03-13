@@ -36,10 +36,10 @@ public class User implements Serializable {
     @Column(nullable = false)
     private UserStatus status;
 
-    @Column(nullable = true)
+    @Column
     private String birthday;
 
-    @Column(nullable = true)
+    @Column(nullable = false)
     private String creationDate;
 
 

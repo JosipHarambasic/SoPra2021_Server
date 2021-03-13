@@ -3,6 +3,7 @@ package ch.uzh.ifi.hase.soprafs21.service;
 import ch.uzh.ifi.hase.soprafs21.constant.UserStatus;
 import ch.uzh.ifi.hase.soprafs21.entity.User;
 import ch.uzh.ifi.hase.soprafs21.repository.UserRepository;
+import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
 import javassist.NotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,6 +16,12 @@ import org.springframework.web.server.ResponseStatusException;
 
 import javax.management.openmbean.InvalidKeyException;
 import java.nio.file.attribute.UserPrincipalNotFoundException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 
@@ -60,7 +67,8 @@ public class UserService {
 
     public User createUser(User newUser) {
         newUser.setToken(UUID.randomUUID().toString());
-        newUser.setStatus(UserStatus.OFFLINE);
+        newUser.setStatus(UserStatus.ONLINE);
+        newUser.setCreationDate(getDate());
 
         checkIfUserExists(newUser);
 
@@ -77,7 +85,6 @@ public class UserService {
      * defined in the User entity. The method will do nothing if the input is unique and throw an error otherwise.
      *
      * @param userToBeCreated
-     * @throws org.springframework.web.server.ResponseStatusException
      * @see User
      */
     private void checkIfUserExists(User userToBeCreated) {
@@ -99,7 +106,7 @@ public class UserService {
         userToBeChecked.setToken(UUID.randomUUID().toString());
         List<User> allUsers = this.userRepository.findAll();
 
-        // set all the users to offline
+        // set all the users to offline but I don't now how to handle more users at the same time
         for (User user: allUsers){
             user.setStatus(UserStatus.OFFLINE);
         }
@@ -125,6 +132,36 @@ public class UserService {
         User returnedUser = userRepository.save(userByUsername);
         userRepository.flush();
         return returnedUser;
+    }
+
+    public String getDate(){
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        LocalDateTime now = LocalDateTime.now();
+        return dtf.format(now);
+    }
+
+    public void userUpdate(Long userId, UserPostDTO userEditDTO) throws NotFoundException {
+        List<User> users = this.userRepository.findAll();
+
+        User user_update = null;
+
+        for (User user: users){
+            if (userId.equals(user.getId())){
+                user_update = user;
+            }
+        }
+
+        if (user_update == null){
+            throw new NotFoundException("This user could not be found.");
+        }
+
+        if (userEditDTO.getBirthday() != null){
+            user_update.setBirthday(userEditDTO.getBirthday());}
+
+        if (userEditDTO.getUsername() != null){
+            user_update.setUsername(userEditDTO.getUsername());}
+        userRepository.save(user_update);
+        userRepository.flush();
     }
 
 }
