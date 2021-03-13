@@ -143,24 +143,24 @@ public class UserService {
     public void userUpdate(Long userId, UserPostDTO userEditDTO) throws NotFoundException {
         List<User> users = this.userRepository.findAll();
 
-        User user_update = null;
+        User updatedUser = null;
 
         for (User user: users){
             if (userId.equals(user.getId())){
-                user_update = user;
+                updatedUser = user;
             }
         }
 
-        if (user_update == null){
+        if (updatedUser == null){
             throw new NotFoundException("This user could not be found.");
         }
 
         if (userEditDTO.getBirthday() != null){
-            user_update.setBirthday(userEditDTO.getBirthday());}
+            updatedUser.setBirthday(userEditDTO.getBirthday());}
 
         if (userEditDTO.getUsername() != null){
-            user_update.setUsername(userEditDTO.getUsername());}
-        userRepository.save(user_update);
+            updatedUser.setUsername(userEditDTO.getUsername());}
+        userRepository.save(updatedUser);
         userRepository.flush();
     }
 
