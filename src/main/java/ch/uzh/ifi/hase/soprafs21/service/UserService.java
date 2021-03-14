@@ -48,7 +48,7 @@ public class UserService {
     }
 
 
-    public User getUser(Long id) throws NotFoundException {
+    public User getUser(Long id){
         //find user by his ID
         List<User> allUsers = this.userRepository.findAll();
         User userToReturn = null;
@@ -58,7 +58,7 @@ public class UserService {
             }
         }
         if(userToReturn == null){
-            throw new NotFoundException("User not found");
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST,"User not found");
         }
 
         return userToReturn;
@@ -93,16 +93,13 @@ public class UserService {
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
         if (userByUsername != null && userByPassword != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username and the password", "are"));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username and the password", "are"));
         }
         else if (userByUsername != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "username", "is"));
-        }
-        else if (userByPassword != null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, String.format(baseErrorMessage, "name", "is"));
+            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
         }
     }
-    public User handleRequestLogin(User userToBeChecked){
+    public User handleRequestLogin(User userToBeChecked) {
         userToBeChecked.setToken(UUID.randomUUID().toString());
         List<User> allUsers = this.userRepository.findAll();
 
@@ -115,14 +112,15 @@ public class UserService {
 
         //check if user exists or not
         if(userByUsername == null){
-            throw new InvalidKeyException("login failed because user doesn't exist");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND,"User not found");
         }
 
         String userPassword = userByUsername.getName();
         String userUsername = userByUsername.getUsername();
 
+        //check if username and password are correct
         if (!userToBeChecked.getUsername().equals(userUsername) || !userToBeChecked.getName().equals(userPassword)){
-            throw new InvalidKeyException("login failed because of false credentials");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED,"your credentials are not correct");
         }
 
         //set the logged in user to online
@@ -140,7 +138,7 @@ public class UserService {
         return dtf.format(now);
     }
 
-    public void userUpdate(Long userId, UserPostDTO userEditDTO) throws NotFoundException {
+    public void userUpdate(Long userId, UserPostDTO userEditDTO){
         List<User> users = this.userRepository.findAll();
 
         User updatedUser = null;
@@ -152,7 +150,7 @@ public class UserService {
         }
 
         if (updatedUser == null){
-            throw new NotFoundException("This user could not be found.");
+            throw new ResponseStatusException(HttpStatus.NO_CONTENT);
         }
 
         if (userEditDTO.getBirthday() != null){
@@ -160,6 +158,7 @@ public class UserService {
 
         if (userEditDTO.getUsername() != null){
             updatedUser.setUsername(userEditDTO.getUsername());}
+
         userRepository.save(updatedUser);
         userRepository.flush();
     }

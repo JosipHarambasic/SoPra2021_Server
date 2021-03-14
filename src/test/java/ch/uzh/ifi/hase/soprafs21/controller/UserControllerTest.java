@@ -69,7 +69,7 @@ public class UserControllerTest {
     }
 
     @Test
-    public void createUser_validInput_userCreated() throws Exception {
+    public void createUser_validInput() throws Exception {
         // given
         User user = new User();
         user.setId(1L);
@@ -92,10 +92,10 @@ public class UserControllerTest {
         // then
         mockMvc.perform(postRequest)
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$[0].id", is(user.getId().intValue())))
-                .andExpect(jsonPath("$[0].name", is(user.getName())))
-                .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.name", is(user.getName())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
     }
 
     @Test
@@ -118,12 +118,10 @@ public class UserControllerTest {
 
         mockMvc.perform(request1).andExpect(status().isCreated());
 
-        //show all the users that exist already
-        //System.out.println(userService.getUsers());
 
         User secondUser = new User();
-        secondUser.setName("Test User2");
-        secondUser.setUsername("testUser2");
+        secondUser.setName("Test User");
+        secondUser.setUsername("testUser");
         secondUser.setStatus(UserStatus.OFFLINE);
         secondUser.setToken("2");
         secondUser.setId(2L);
@@ -132,14 +130,13 @@ public class UserControllerTest {
         userPostDTO.setName("Test User");
         userPostDTO.setUsername("testUser");
 
-        given(userService.createUser(Mockito.any())).willThrow(new DuplicateKeyException(Mockito.anyString()));
+        given(userService.createUser(Mockito.any())).willThrow(new ResponseStatusException(HttpStatus.CONFLICT));
 
         MockHttpServletRequestBuilder request2 = post("/users")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(asJsonString(userPostDTO2));
 
-        mockMvc.perform(request2)
-                .andExpect(status().isConflict());
+        mockMvc.perform(request2).andExpect(status().isConflict());
     }
 
     @Test
@@ -163,10 +160,10 @@ public class UserControllerTest {
 
         mockMvc.perform(putRequest)
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].id", is(user.getId().intValue())))
-                .andExpect(jsonPath("$[0].name", is(user.getName())))
-                .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$.id", is(user.getId().intValue())))
+                .andExpect(jsonPath("$.name", is(user.getName())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
 
     }
 
@@ -186,11 +183,11 @@ public class UserControllerTest {
         MockHttpServletRequestBuilder getRequest = get("/users/1").contentType(MediaType.APPLICATION_JSON);
 
         mockMvc.perform(getRequest).andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].name", is(user.getName())))
-                .andExpect(jsonPath("$[0].username", is(user.getUsername())))
-                .andExpect(jsonPath("$[0].creationDate", is(user.getCreationDate())))
-                .andExpect(jsonPath("$[0].birthday", is(user.getBirthday())))
-                .andExpect(jsonPath("$[0].status", is(user.getStatus().toString())));
+                .andExpect(jsonPath("$.name", is(user.getName())))
+                .andExpect(jsonPath("$.username", is(user.getUsername())))
+                .andExpect(jsonPath("$.creationDate", is(user.getCreationDate())))
+                .andExpect(jsonPath("$.birthday", is(user.getBirthday())))
+                .andExpect(jsonPath("$.status", is(user.getStatus().toString())));
     }
 
     @Test
@@ -199,7 +196,7 @@ public class UserControllerTest {
         userPostDTO.setName("Test User");
         userPostDTO.setUsername("testUsername");
 
-        given(userService.handleRequestLogin(Mockito.any())).willThrow(new InvalidDataAccessResourceUsageException(Mockito.anyString()));
+        given(userService.handleRequestLogin(Mockito.any())).willThrow(new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
         MockHttpServletRequestBuilder putRequest = put("/login")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -214,7 +211,7 @@ public class UserControllerTest {
 
     @Test
     public void getUser_userDoesNotExist() throws Exception {
-        given(userService.getUser(Mockito.anyLong())).willThrow(new NotFoundException(Mockito.anyString()));
+        given(userService.getUser(Mockito.anyLong())).willThrow(new ResponseStatusException(HttpStatus.NOT_FOUND));
 
         MockHttpServletRequestBuilder getRequest = get("/users/200")
                 .contentType(MediaType.APPLICATION_JSON);

@@ -72,17 +72,16 @@ public class UserController {
     @GetMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public UserGetDTO getCurrentUser(@PathVariable Long userId) throws NotFoundException {
+    public UserGetDTO getCurrentUser(@PathVariable Long userId){
         // fetch all users in the internal representation
         User user = userService.getUser(userId);
-        UserGetDTO userGetDTO = DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
-        return userGetDTO;
+        return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
+
     @PutMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
-    public void EditCurrentUser(@PathVariable Long userId, @RequestBody UserPostDTO userEditDTO) throws NotFoundException {
-
+    public void EditUser(@PathVariable Long userId, @RequestBody UserPostDTO userEditDTO) {
         userService.userUpdate(userId, userEditDTO);
     }
 
