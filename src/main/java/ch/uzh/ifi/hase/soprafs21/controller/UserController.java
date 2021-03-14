@@ -25,6 +25,9 @@ public class UserController {
         this.userService = userService;
     }
 
+    //TODO this class is the key between front and backend so they can communicate properly
+
+    // we get all the users
     @GetMapping("/users")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -39,6 +42,7 @@ public class UserController {
         }
         return userGetDTOs;
     }
+
 
     @PostMapping("/users")
     @ResponseStatus(HttpStatus.CREATED)
@@ -62,12 +66,13 @@ public class UserController {
         User userInput = DTOMapper.INSTANCE.convertUserPostDTOtoEntity(userPostDTO);
 
         // asking userService if userInput exists
-        User userLogin = userService.handleRequestLogin(userInput);
+        User userLogin = userService.handleLoginRequest(userInput);
 
         // convert internal representation of the user back to the API
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(userLogin);
     }
 
+    // I get data from the backend to the frontend with the specific userID
     @GetMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
@@ -77,6 +82,7 @@ public class UserController {
         return DTOMapper.INSTANCE.convertEntityToUserGetDTO(user);
     }
 
+    // I put data from the backend to the frontend and with the specific userID i can edit every user
     @PutMapping("/users/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
@@ -84,6 +90,7 @@ public class UserController {
         userService.updateUser(userId, userEditDTO);
     }
 
+    // Use this so I can set all users that are offline to offline
     @PutMapping("/logout/{userId}")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody

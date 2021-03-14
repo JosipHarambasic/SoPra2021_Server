@@ -89,24 +89,16 @@ public class UserService {
      */
     private void checkIfUserExists(User userToBeCreated) {
         User userByUsername = userRepository.findByUsername(userToBeCreated.getUsername());
-        User userByPassword = userRepository.findByName(userToBeCreated.getName());
 
         String baseErrorMessage = "The %s provided %s not unique. Therefore, the user could not be created!";
-        if (userByUsername != null && userByPassword != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username and the password", "are"));
-        }
-        else if (userByUsername != null) {
+        if (userByUsername != null) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, String.format(baseErrorMessage, "username", "is"));
         }
     }
-    public User handleRequestLogin(User userToBeChecked) {
-        userToBeChecked.setToken(UUID.randomUUID().toString());
-        List<User> allUsers = this.userRepository.findAll();
 
-        // set all the users to offline but I don't now how to handle more users at the same time
-        for (User user: allUsers){
-            user.setStatus(UserStatus.OFFLINE);
-        }
+    // we check here if the credentials are correct to login
+    public User handleLoginRequest(User userToBeChecked) {
+        userToBeChecked.setToken(UUID.randomUUID().toString());
 
         User userByUsername = userRepository.findByUsername(userToBeChecked.getUsername());
 
@@ -132,12 +124,15 @@ public class UserService {
         return returnedUser;
     }
 
+    // get the creation Date
     public String getDate(){
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
         LocalDateTime now = LocalDateTime.now();
         return dtf.format(now);
     }
 
+
+    // function to update the user if he is logged in with his userID we can check that
     public void updateUser(Long userId, UserPostDTO userEditDTO){
         List<User> users = this.userRepository.findAll();
 
@@ -153,17 +148,18 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT);
         }
 
-
         if (userEditDTO.getBirthday() != null){
             updatedUser.setBirthday(userEditDTO.getBirthday());}
 
         if (userEditDTO.getUsername() != null){
+            //TODO I don't now what the error is but it should be here to work properly --> checkIfUserExists(updatedUser);
             updatedUser.setUsername(userEditDTO.getUsername());}
 
         userRepository.save(updatedUser);
         userRepository.flush();
     }
 
+    // same as fot the login I set all the users that are not Online to offline
     public void logout(Long userId){
         List<User> allUsers = this.userRepository.findAll();
 
