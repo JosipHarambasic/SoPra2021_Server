@@ -5,7 +5,6 @@ import ch.uzh.ifi.hase.soprafs21.rest.dto.UserGetDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.dto.UserPostDTO;
 import ch.uzh.ifi.hase.soprafs21.rest.mapper.DTOMapper;
 import ch.uzh.ifi.hase.soprafs21.service.UserService;
-import javassist.NotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
@@ -82,7 +81,14 @@ public class UserController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     @ResponseBody
     public void EditUser(@PathVariable Long userId, @RequestBody UserPostDTO userEditDTO) {
-        userService.userUpdate(userId, userEditDTO);
+        userService.updateUser(userId, userEditDTO);
+    }
+
+    @PutMapping("/logout/{userId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    @ResponseBody
+    public void userLogout(@PathVariable Long userId){
+        userService.logout(userId);
     }
 
 }

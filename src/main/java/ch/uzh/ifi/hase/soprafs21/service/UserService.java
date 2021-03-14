@@ -138,7 +138,7 @@ public class UserService {
         return dtf.format(now);
     }
 
-    public void userUpdate(Long userId, UserPostDTO userEditDTO){
+    public void updateUser(Long userId, UserPostDTO userEditDTO){
         List<User> users = this.userRepository.findAll();
 
         User updatedUser = null;
@@ -153,6 +153,7 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.NO_CONTENT);
         }
 
+
         if (userEditDTO.getBirthday() != null){
             updatedUser.setBirthday(userEditDTO.getBirthday());}
 
@@ -160,6 +161,21 @@ public class UserService {
             updatedUser.setUsername(userEditDTO.getUsername());}
 
         userRepository.save(updatedUser);
+        userRepository.flush();
+    }
+
+    public void logout(Long userId){
+        List<User> allUsers = this.userRepository.findAll();
+
+        User loggedOutUser = null;
+
+        for (User user: allUsers){
+            if (userId.equals(user.getId())){
+                loggedOutUser = user;
+            }
+        }
+        loggedOutUser.setStatus(UserStatus.OFFLINE);
+        userRepository.save(loggedOutUser);
         userRepository.flush();
     }
 
